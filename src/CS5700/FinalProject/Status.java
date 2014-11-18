@@ -1,3 +1,4 @@
+package CS5700.FinalProject;
 
 public class Status 
 {
@@ -52,6 +53,11 @@ public class Status
 
 	public void setStamina(int stamina) {
 		this.stamina = stamina;
+	}
+	
+	public Status getReverse()
+	{
+		return new Status(health * -1, magika * -1, stamina * -1);
 	}
 	
 }
