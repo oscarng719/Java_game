@@ -1,4 +1,6 @@
-package CS5700.FinalProject;
+package CS5700.FinalProject.Command;
+
+import CS5700.FinalProject.Character;
 
 public interface Command 
 {

@@ -11,5 +11,4 @@ public class Fireball extends Weapon
 	{
 		super(name, effect);
 	}
-	
 }
