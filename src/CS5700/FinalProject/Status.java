@@ -8,20 +8,11 @@ public class Status
 	
 	public Status(int health, int magika, int stamina)
 	{
-		if(health < 1)
-			this.health = 1;
-		else
-			this.health = health;
+		this.health = health;
 		
-		if(magika < 1)
-			this.magika = 1;
-		else
-			this.magika = magika;
+		this.magika = magika;
 		
-		if(stamina < 1)
-			this.stamina = 1;
-		else
-			this.stamina = stamina;
+		this.stamina = stamina;
 	}
 	
 	public void update(Status s)
@@ -58,6 +49,11 @@ public class Status
 	public Status getReverse()
 	{
 		return new Status(health * -1, magika * -1, stamina * -1);
+	}
+	
+	public String toString()
+	{
+		return "(health " + health +", magika "+ magika +", stamina "+stamina +")";
 	}
 	
 }

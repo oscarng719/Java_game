@@ -1,5 +1,8 @@
 package CS5700.FinalProject;
 
+import CS5700.FinalProject.Command.Command;
+import CS5700.FinalProject.Weapon.Weapon;
+
 public class Character 
 {
 	private Status status;
@@ -12,9 +15,14 @@ public class Character
 		this.status = status;
 	}
 	
-	public void updateStatus(Weapon w)
+	public void receiveDamage(Weapon w)
 	{
-		status.update(w.getData());
+		status.update(w.getEffect());
+	}
+	
+	public void recoverDamage(Weapon w)
+	{
+		status.update(status.getReverse());
 	}
 	
 	public void addCommand(Command c)

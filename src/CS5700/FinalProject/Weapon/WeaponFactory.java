@@ -7,15 +7,15 @@ public class WeaponFactory
 		Weapon w = null;
 		switch (s) {
         case "Fireball":
-            //w = new Fireball();
+            w = new Fireball();
             break;
  
         case "Sword":
-            //w = new Sword();
+            w = new Sword();
             break;
  
         case "Hotdog":
-           // w = new Hotdog();
+           w = new Hotdog();
             break;
         }
 		

@@ -3,16 +3,29 @@ import CS5700.FinalProject.Status;
 
 public abstract class Weapon 
 {
+	private Status effect;
+	private String name;
+	
+	public Weapon(String n, Status e)
+	{
+		this.effect =e;
+		this.name = n;
+	}
+	
+	public Status getEffect()
+	{
+		return effect;
+	}
 
-	public abstract Status getStatus();
-	public abstract String getName();
-	public abstract Weapon getReverse();
+	public String getName()
+	{
+		return name;
+	}
 
 	@Override
 	public String toString() 
 	{
-		return "Weapon [getStatus()=" + getStatus() + ", getName()="
-				+ getName() + "]";
+		return "Weapon : " + name + " - " + effect.toString();
 	}
 	
 }
