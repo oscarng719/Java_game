@@ -19,7 +19,7 @@ public class WeaponCommand implements Command
 
 	@Override
 	public void unexecute(Character receiver) {
-		receiver.receiveDamage(weapon);
+		receiver.recoverDamage(weapon);
 	}
 	
 	@Override
