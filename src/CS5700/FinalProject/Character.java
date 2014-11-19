@@ -22,7 +22,7 @@ public class Character
 	
 	public void recoverDamage(Weapon w)
 	{
-		status.update(status.getReverse());
+		status.update(w.getEffect().getReverse());
 	}
 	
 	public void addCommand(Command c)
@@ -68,4 +68,14 @@ public class Character
 	{
 		return invoker;
 	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	
+	
 }
