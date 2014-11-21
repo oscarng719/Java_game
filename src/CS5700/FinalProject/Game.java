@@ -48,6 +48,11 @@ public class Game
 		for(int i=0; i<enemyNumber; i++)
 		{
 			nameRand = rand.nextInt(6);
+			for(int j=0; i<j; i++)
+			{
+				if (enemy[j].getName().equals(nameRand))
+					nameRand = rand.nextInt(6);
+			}
 			enemy[i].setName(enemieName[nameRand]);
 			
 			healthR = rand.nextInt(80) + 70;
@@ -86,6 +91,11 @@ public class Game
 	{
 		return enemy[i];
 	}
+	
+	public Character getPlayer(int i)
+	{
+		return player[i];
+	}
 
 	public int getEnemyNumber() {
 		return enemyNumber;
@@ -100,21 +110,19 @@ public class Game
 		invoker.addCommand(c);
 	}
 	
-	public void doCommand(Character target)
+	public void doCommand()
 	{
 		Command c = invoker.getDoCommand();
 		if (c != null) {
-			System.out.println("Doing: " + c);
-			c.execute(target);
+			c.execute();
 		}
 	}
 	
-	public void undoCommand(Character target)
+	public void undoCommand()
 	{
 		Command c = invoker.getUndoCommand();
 		if (c != null) {
-			System.out.println("Undoing: " + c);
-			c.unexecute(target);
+			c.unexecute();
 		}
 	}
 	

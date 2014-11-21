@@ -13,9 +13,9 @@ public class Invoker
 	{
 		commandList.add(c);
 		
-		if (!undoList.isEmpty()) {
+		/*if (!undoList.isEmpty()) {
 			undoList.clear();
-		}
+		}*/
 	}
 
 	public Command getDoCommand() 
@@ -41,6 +41,16 @@ public class Invoker
 		}
 		
 		return c;
+	}
+	
+	public boolean checkCmdList()
+	{
+		return commandList.isEmpty();
+	}
+	
+	public boolean checkUnDoList()
+	{
+		return undoList.isEmpty();
 	}
 	
 	@Override

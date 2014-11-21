@@ -3,33 +3,46 @@ package CS5700.FinalProject;
 import CS5700.FinalProject.Command.Command;
 import CS5700.FinalProject.Command.RenameCommand;
 import CS5700.FinalProject.Command.WeaponCommand;
+import CS5700.FinalProject.GUI.GameBoard;
 import CS5700.FinalProject.Weapon.Weapon;
 import CS5700.FinalProject.Weapon.WeaponFactory;
 
 import java.util.Scanner;
 
+import javax.swing.JFrame;
+
 public class Driver 
 {	
-	private Character steve = new Character("Steve", new Status(100,100,100));
+	private Character steve = new Character("Steve"+1, new Status(100,100,100));
 	public static void main(String[] args)
 	{
 		
 		
-		Weapon test = WeaponFactory.buildWeapon("Sword");
+		/*Weapon test = WeaponFactory.buildWeapon("Sword");
 		System.out.println(test);
 		Driver d = new Driver();
 		d.loopDriver();
-		//System.out.println("Enter your name:");
+		System.out.println("Enter your name:");
 		
 		
-		//Character player = new Character(next, new Status(100,100,100));
+		Character player = new Character(next, new Status(100,100,100));
 	
-		//System.out.println(player);
+		System.out.println(player);
 	
+		String s ="John attack AAA with fireball";
+		String[] s2 = s.split(" ");
 		
+		for(int i=0; i< s2.length;i++)
+		{
+			System.out.println(s2[i]);
+		}*/
+		
+		
+		JFrame f = new GameBoard();
+		f.setVisible(true);
 	}
 	
-	private void loopDriver()
+	/*private void loopDriver()
 	{
 		Scanner input = new Scanner(System.in);
 		
@@ -40,7 +53,7 @@ public class Driver
 			action(next);
 			next = input.nextLine();
 		}
-		
+		System.out.println("\n\nDONE");
 		input.close();
 	}
 	
@@ -90,5 +103,7 @@ public class Driver
 			System.out.println("sword - use sword");
 			System.out.println("queue - see the list of command");
 		}
-	}
+		else
+			System.out.println("Incorrect Input, try again!");
+	}*/
 }
