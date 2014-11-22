@@ -2,22 +2,19 @@ package CS5700.FinalProject.GUI;
 
 import java.awt.*;
 import java.awt.event.*;
-
 import javax.swing.*;
 import javax.swing.border.*;
-
 import CS5700.FinalProject.*;
 import CS5700.FinalProject.Command.Combo;
 import CS5700.FinalProject.Command.Command;
 import CS5700.FinalProject.Command.RenameCommand;
 import CS5700.FinalProject.Command.WeaponCommand;
-import CS5700.FinalProject.Weapon.Weapon;
 import CS5700.FinalProject.Weapon.WeaponFactory;
 import CS5700.FinalProject.Character;
 
 public class GameBoard extends JFrame implements ActionListener
 {
-	Game gameDate = new Game();
+	Game gameData = new Game();
 	String nameInput;
 	private Container pane = getContentPane();
 	GroupLayout gl = new GroupLayout(pane);
@@ -28,21 +25,27 @@ public class GameBoard extends JFrame implements ActionListener
 	private JTextArea[] enemyStatus = new JTextArea[3];
 	
 	private JButton clear, rename, add, doCommand, combo,
-						undoCommand, fireball, sword, hotdog;
+						undoCommand, fireball, sword, arrow;
 	
 	private JTextField[] cmd1 = new JTextField[3];
 	private JTextField[] cmd2 = new JTextField[3];
 	private JLabel[] commandLabel = new JLabel[4];
 	private JMenuBar menuMB = new JMenuBar();
+	private JMenu gameM;
 	private JMenuItem exitI, newgameI;
-	private JTextField gameLV = new JTextField();
+	private JTextField gameLVText = new JTextField();
 	private JLabel cmdL = new JLabel("Command",SwingConstants.CENTER);
 	private JLabel weaponL = new JLabel("Weapon",SwingConstants.CENTER);
 	private JLabel playerL = new JLabel("Player",SwingConstants.CENTER);
 	private JLabel enemyL = new JLabel("Enemy",SwingConstants.CENTER);
+	private JLabel gameOverL = new JLabel("Game Over", SwingConstants.CENTER);
+	private JLabel titleL = new JLabel("CS 5700 Final Project",SwingConstants.CENTER);
+	private JLabel bgL = new JLabel(new ImageIcon("picture/bg.jpg"));
+	private JButton startGameB = new JButton("Start Game");
 	private JTextArea queue = new JTextArea();
 	Border border = LineBorder.createGrayLineBorder();
 	Boolean comboClicked = false;
+	String name1, name2;
 	
 	public GameBoard()
 	{
@@ -54,32 +57,62 @@ public class GameBoard extends JFrame implements ActionListener
 		pane.setLayout(null);
 		pane.setBackground(Color.LIGHT_GRAY);
 		
-		gameDate.RandomEnemie();
+		gameData.RandomEnemie();
 		
-		initializeItem();
-		addItem();
+		mainMenu();
 		
 		setVisible(true);
 		setResizable(false);
 	}
 	
+	public void mainMenu()
+	{
+		bgL.setSize(600, 700);
+		bgL.setLocation(0, 0);
+		
+		startGameB.setSize(150, 60);
+		startGameB.setLocation(225, 300);
+		startGameB.addActionListener(this);
+		
+		titleL.setSize(600, 60);
+		titleL.setLocation(0, 80);
+		titleL.setFont(new Font("Arial", Font.PLAIN, 40));
+		titleL.setForeground (Color.WHITE);
+		
+		pane.add(titleL);
+		pane.add(bgL);
+		pane.add(startGameB);
+		
+	}
+	
 	public void initializeItem()
 	{
+		setJMenuBar(menuMB);
+		gameM = new JMenu("Game");
+		newgameI = new JMenuItem("New Game");
+		gameM.add(newgameI);
+		newgameI.addActionListener(this);
+		
+		exitI = new JMenuItem("Exit");
+		gameM.add(exitI);
+		exitI.addActionListener(this);
+		menuMB.add(gameM);
+		
 		//initialize player and enemy
 		for(int i=0;i<2;i++)
 		{
 			int h, m, s;
-			String n = gameDate.getPlayer(i).getName();
+			String n = gameData.getPlayer(i).getName();
+			h = gameData.getPlayer(i).getStatus().getHealth();
+			m = gameData.getPlayer(i).getStatus().getMagika();
+			s = gameData.getPlayer(i).getStatus().getStamina();
 			
-			h = gameDate.getPlayer(i).getStatus().getHealth();
-			m = gameDate.getPlayer(i).getStatus().getMagika();
-			s = gameDate.getPlayer(i).getStatus().getStamina();
-			
-			player[i] = new JButton(n);
+			player[i] = new JButton(new ImageIcon("picture/p0" + i+".jpg"));
 			player[i].setSize(150,150);
 			player[i].setLocation(i*150, 255);
 			player[i].setBorderPainted(true);
 			player[i].addActionListener(this);
+			player[i].setEnabled(true);
 			
 			playerStatus[i] = new JTextArea();
 			playerStatus[i].setSize(150, 75);
@@ -93,18 +126,21 @@ public class GameBoard extends JFrame implements ActionListener
 		{
 			enemy[i] = new JButton();
 			enemy[i].setSize(150,150);
+			//enemy[i].setText("");
+			enemy[i].setIcon(null);
 			enemy[i].setLocation(i*150, 15);
 			enemy[i].setBorderPainted(true);
 			enemy[i].addActionListener(this);
 			enemy[i].setEnabled(false);
 			
 			enemyStatus[i] = new JTextArea();
+			enemyStatus[i].setText("");
 			enemyStatus[i].setSize(150, 75);
 			enemyStatus[i].setLocation(i*150, 165);
 			enemyStatus[i].setBorder(border);
 			enemyStatus[i].setEditable(false);
 		}
-		setEnemy();
+		updateEnemy();
 		
 		//initialize command display
 		commandLabel[0] = new JLabel("Character",SwingConstants.CENTER);
@@ -179,20 +215,20 @@ public class GameBoard extends JFrame implements ActionListener
 		combo.setLocation(450,210);
 		combo.addActionListener(this);
 		
-		fireball = new JButton("Fireball");
+		fireball = new JButton(new ImageIcon("picture/fireball.jpg"));
 		fireball.setSize(150,70);
 		fireball.setLocation(300,270);
 		fireball.addActionListener(this);
 		
-		sword = new JButton("Sword");
+		sword = new JButton(new ImageIcon("picture/sword.jpg"));
 		sword.setSize(150,70);
 		sword.setLocation(300,340);
 		sword.addActionListener(this);
 		
-		hotdog = new JButton("Hotdog");
-		hotdog.setSize(150,70);
-		hotdog.setLocation(300,410);
-		hotdog.addActionListener(this);
+		arrow = new JButton(new ImageIcon("picture/arrow.jpg"));
+		arrow.setSize(150,70);
+		arrow.setLocation(300,410);
+		arrow.addActionListener(this);
 		
 		cmdL.setSize(150, 30);
 		cmdL.setBackground(Color.green);
@@ -206,16 +242,61 @@ public class GameBoard extends JFrame implements ActionListener
 		weaponL.setOpaque(true);
 		weaponL.setBorder(border);
 		
-		gameLV.setSize(150,30);
-		gameLV.setLocation(450,0);
-		gameLV.setBorder(border);
-		gameLV.setEditable(false);
-		gameLV.setText(String.format("  Level : %d",gameDate.getLevel()));
+		gameLVText.setSize(150,30);
+		gameLVText.setLocation(450,0);
+		gameLVText.setBorder(border);
+		gameLVText.setEditable(false);
+		gameLVText.setText(String.format("  Level : %d",gameData.getLevel()));
 		
 		queue.setSize(600,220);
 		queue.setLocation(0,480);
 		queue.setBorder(border);
-		queue.setText(gameDate.getInvoker().toString());
+		queue.setText(gameData.getInvoker().toString());
+		
+		gameOverL.setSize(600,700);
+		gameOverL.setLocation(0,0);
+		gameOverL.setBorder(border);
+		gameOverL.setVisible(false);
+	}
+	
+	public void getPlayerName()
+	{
+		name1 = (JOptionPane.showInputDialog(this, "Type in character 1 name:"));
+		name2 = (JOptionPane.showInputDialog(this, "Type in character 2 name:"));
+		
+		if(name1.equals(""))
+			gameData.getPlayer(0).setName("No Name");
+		else
+			gameData.getPlayer(0).setName(name1);
+		
+		if(name2.equals(""))
+			gameData.getPlayer(1).setName("No Name");
+		else
+			gameData.getPlayer(1).setName(name2);
+	}
+	
+	public void restart()
+	{
+		gameOverL.setVisible(false);
+		addItem();
+		gameData = new Game();
+		
+		for(int i=0;i<2;i++)
+		{
+			player[i].setText("");
+			playerStatus[i].setText("");
+			enemy[i].setText("");
+			enemy[i].setIcon(null);
+			enemy[i].setEnabled(false);
+			enemyStatus[i].setText("");
+		}
+		enemy[2].setText("");
+		enemyStatus[2].setText("");
+		enemy[2].setIcon(null);
+		enemy[2].setEnabled(false);
+		
+		updatePlayer();
+		updateEnemy();
 	}
 	
 	public void addItem()
@@ -243,37 +324,57 @@ public class GameBoard extends JFrame implements ActionListener
 		pane.add(undoCommand);
 		pane.add(fireball);
 		pane.add(sword);
-		pane.add(hotdog);
+		pane.add(arrow);
 		pane.add(cmdL);
 		pane.add(weaponL);
 		pane.add(combo);
 		pane.add(queue);
 		pane.add(playerL);
 		pane.add(enemyL);
-		pane.add(gameLV);
+		pane.add(gameLVText);
 	}
 	
-	public void setEnemy()
+	public void updateEnemy()
 	{
-		for(int i=0;i<gameDate.getEnemyNumber();i++)
+		for(int i=0;i<gameData.getEnemyNumber();i++)
+		{
+			int h, m, s, tag;
+			tag = gameData.getEnemyTag(i);
+			String n = gameData.getEnemy(i).getName();
+			h = gameData.getEnemy(i).getStatus().getHealth();
+			m = gameData.getEnemy(i).getStatus().getMagika();
+			s = gameData.getEnemy(i).getStatus().getStamina();
+
+			//enemy[i].setText(n);
+			enemy[i].setIcon(new ImageIcon("picture/c0" + tag+".jpg"));
+			enemyStatus[i].setText(String.format("  Name: %s \n  Health: %d \n  Magika: %d \n  Stamina: %d",n,h,m,s));
+			if (gameData.getEnemy(i).getStatus().getHealth() >0)
+				enemy[i].setEnabled(true);
+		}
+	}
+	
+	public void updatePlayer()
+	{
+
+		for(int i=0;i<2;i++)
 		{
 			int h, m, s;
-			String n = gameDate.getEnemy(i).getName();
-			h = gameDate.getEnemy(i).getStatus().getHealth();
-			m = gameDate.getEnemy(i).getStatus().getMagika();
-			s = gameDate.getEnemy(i).getStatus().getStamina();
-
-			enemy[i].setText(n);
-			enemy[i].setEnabled(true);
-			enemyStatus[i].setText(String.format("  Name: %s \n  Health: %d \n  Magika: %d \n  Stamina: %d",n,h,m,s));
+			String n = gameData.getPlayer(i).getName();
+			
+			h = gameData.getPlayer(i).getStatus().getHealth();
+			m = gameData.getPlayer(i).getStatus().getMagika();
+			s = gameData.getPlayer(i).getStatus().getStamina();
+			//player[i].setText(n);
+			playerStatus[i].setText(String.format("  Name: %s \n  Health: %d \n  Magika: %d \n  Stamina: %d",n,h,m,s));
 		}
 	}
 	
 	public void clearCMD()
 	{
-		for(int i=0;i<gameDate.getEnemyNumber();i++)
+		for(int i=0;i<gameData.getEnemyNumber();i++)
 		{
-			enemy[i].setEnabled(true);
+			if (gameData.getEnemy(i).getStatus().getHealth() >0)
+				enemy[i].setEnabled(true);
 		}
 		
 		for(int i=0;i<3;i++)
@@ -287,7 +388,25 @@ public class GameBoard extends JFrame implements ActionListener
 	
 	public void actionPerformed(ActionEvent e) 
 	{
-		if(e.getSource() == clear)
+		if(e.getSource() == newgameI)
+		{
+			restart();
+		}
+		else if(e.getSource() == exitI)
+		{
+			System.exit(0);
+		}	
+		else if(e.getSource() == startGameB)
+		{
+			getPlayerName();
+			bgL.setVisible(false);
+			startGameB.setVisible(false);
+			titleL.setVisible(false);
+			initializeItem();
+			addItem();
+			
+		}
+		else if(e.getSource() == clear)
 		{
 			clearCMD();
 		}	
@@ -317,14 +436,14 @@ public class GameBoard extends JFrame implements ActionListener
 				
 					cmd2[1].setText("Fireball");
 					cmd2[1].setBackground(Color.YELLOW);
-					setEnemy();
+					updateEnemy();
 				
 			}
 			else
 			{
 				cmd1[1].setText("Fireball");
 				cmd1[1].setBackground(Color.YELLOW);
-				setEnemy();
+				updateEnemy();
 			}
 		}
 		else if(e.getSource() == sword)
@@ -334,31 +453,31 @@ public class GameBoard extends JFrame implements ActionListener
 				
 					cmd2[1].setText("Sword");
 					cmd2[1].setBackground(Color.YELLOW);
-					setEnemy();
+					updateEnemy();
 				
 			}
 			else
 			{
 				cmd1[1].setText("Sword");
 				cmd1[1].setBackground(Color.YELLOW);
-				setEnemy();
+				updateEnemy();
 			}
 		}
-		else if(e.getSource() == hotdog)
+		else if(e.getSource() == arrow)
 		{
 			if(comboClicked == true && !(cmd1[1].getText().equals("")))
 			{
 				
-					cmd2[1].setText("Hotdog");
+					cmd2[1].setText("Arrow");
 					cmd2[1].setBackground(Color.YELLOW);
-					setEnemy();
+					updateEnemy();
 				
 			}
 			else
 			{
-				cmd1[1].setText("Hotdog");
+				cmd1[1].setText("Arrow");
 				cmd1[1].setBackground(Color.YELLOW);
-				setEnemy();
+				updateEnemy();
 			}
 		}
 		else if(e.getSource() == combo)
@@ -396,9 +515,9 @@ public class GameBoard extends JFrame implements ActionListener
 					}
 					else
 					{
-						Character c = gameDate.getCharacter(cmd1[0].getText());
+						Character c = gameData.getCharacter(cmd1[0].getText());
 						Command cmd = new RenameCommand(nameInput,c);
-						gameDate.addCommand(cmd);
+						gameData.addCommand(cmd);
 						clearCMD();
 					}
 				}
@@ -411,10 +530,10 @@ public class GameBoard extends JFrame implements ActionListener
 					}
 					else
 					{
-						Character cTmp = gameDate.getCharacter(cmd1[0].getText());
-						Character eTmp = gameDate.getCharacter(cmd1[2].getText());
+						Character cTmp = gameData.getCharacter(cmd1[0].getText());
+						Character eTmp = gameData.getCharacter(cmd1[2].getText());
 						Command command1 = new WeaponCommand(WeaponFactory.buildWeapon(cmd1[1].getText()),cTmp,eTmp);
-						gameDate.addCommand(command1);
+						gameData.addCommand(command1);
 						clearCMD();
 					}
 				}
@@ -429,14 +548,14 @@ public class GameBoard extends JFrame implements ActionListener
 				}
 				else
 				{
-					Character cTmp1 = gameDate.getCharacter(cmd1[0].getText());
-					Character eTmp1 = gameDate.getCharacter(cmd1[2].getText());
-					Character cTmp2 = gameDate.getCharacter(cmd2[0].getText());
-					Character eTmp2 = gameDate.getCharacter(cmd2[2].getText());
+					Character cTmp1 = gameData.getCharacter(cmd1[0].getText());
+					Character eTmp1 = gameData.getCharacter(cmd1[2].getText());
+					Character cTmp2 = gameData.getCharacter(cmd2[0].getText());
+					Character eTmp2 = gameData.getCharacter(cmd2[2].getText());
 					Command command1 = new WeaponCommand(WeaponFactory.buildWeapon(cmd1[1].getText()),cTmp1,eTmp1);
 					Command command2 = new WeaponCommand(WeaponFactory.buildWeapon(cmd2[1].getText()),cTmp2,eTmp2);
 					Combo comboCmd = new Combo(command1, command2);
-					gameDate.addCommand(comboCmd);
+					gameData.addCommand(comboCmd);
 					clearCMD();
 					comboClicked = false;
 				}
@@ -444,7 +563,7 @@ public class GameBoard extends JFrame implements ActionListener
 		}
 		else if(e.getSource() == doCommand)
 		{
-			if(gameDate.getInvoker().checkCmdList())
+			if(gameData.getInvoker().checkCmdList())
 			{
 				JOptionPane.showMessageDialog(pane,
 					    "No command in the list","Warning",
@@ -452,13 +571,16 @@ public class GameBoard extends JFrame implements ActionListener
 			}
 			else
 			{
-				gameDate.doCommand();
-				updateStatus();
+				gameData.doCommand();
+				gameData.enemyAttack();
+				updatePlayer();
+				updateEnemy();
+				checkStatus();
 			}
 		}
 		else if(e.getSource() == undoCommand)
 		{
-			if(gameDate.getInvoker().checkUnDoList())
+			if(gameData.getInvoker().checkUnDoList())
 			{
 				JOptionPane.showMessageDialog(pane,
 					    "No command in the undo list","Warning",
@@ -466,8 +588,10 @@ public class GameBoard extends JFrame implements ActionListener
 			}
 			else
 			{
-				gameDate.undoCommand();
-				updateStatus();
+				gameData.undoCommand();
+				gameData.enemyAttackUndo();
+				updatePlayer();
+				updateEnemy();
 			}
 		}
 		else
@@ -479,35 +603,35 @@ public class GameBoard extends JFrame implements ActionListener
 					if(comboClicked == true && !(cmd1[0].getText().equals("")))
 					{
 						
-						cmd2[0].setText(gameDate.getPlayer(i).getName());
+						cmd2[0].setText(gameData.getPlayer(i).getName());
 						cmd2[0].setBackground(Color.YELLOW);
 						break;
 						
 					}
 					else
 					{
-						cmd1[0].setText(gameDate.getPlayer(i).getName());
+						cmd1[0].setText(gameData.getPlayer(i).getName());
 						cmd1[0].setBackground(Color.YELLOW);
 						break;
 					}
 				}
 			}
 			
-			for(int i=0; i<gameDate.getEnemyNumber();i++)
+			for(int i=0; i<gameData.getEnemyNumber();i++)
 			{
 				if(e.getSource() == enemy[i])
 				{
 					if(comboClicked == true && !(cmd1[2].getText().equals("")))
 					{
 						
-						cmd2[2].setText(gameDate.getEnemy(i).getName());
+						cmd2[2].setText(gameData.getEnemy(i).getName());
 						cmd2[2].setBackground(Color.YELLOW);
 						break;
 						
 					}
 					else
 					{
-						cmd1[2].setText(gameDate.getEnemy(i).getName());
+						cmd1[2].setText(gameData.getEnemy(i).getName());
 						cmd1[2].setBackground(Color.YELLOW);
 						break;
 					}
@@ -515,24 +639,56 @@ public class GameBoard extends JFrame implements ActionListener
 			}
 		}
 		
-		queue.setText(gameDate.getInvoker().toString());
+		queue.setText(gameData.getInvoker().toString());
 	}
 	
-	public void updateStatus()
+	public void checkStatus()
 	{
-
-		for(int i=0;i<2;i++)
+		gameData.checkStatus();
+		for(int i=0; i<2;i++)
 		{
-			int h, m, s;
-			String n = gameDate.getPlayer(i).getName();
-			
-			h = gameDate.getPlayer(i).getStatus().getHealth();
-			m = gameDate.getPlayer(i).getStatus().getMagika();
-			s = gameDate.getPlayer(i).getStatus().getStamina();
-			playerStatus[i].setText(String.format("  Name: %s \n  Health: %d \n  Magika: %d \n  Stamina: %d",n,h,m,s));
+			if(gameData.getPlayerDead()[i])
+				player[i].setEnabled(false);
 		}
 		
-		setEnemy();
+		for(int i=0; i< gameData.getEnemyNumber();i++)
+		{
+			if(gameData.getEnemyDead()[i])
+				enemy[i].setEnabled(false);
+		}
+		
+		if(gameData.isGameOver())
+		{
+			gameOver();
+		}
+		
+		if(gameData.isLevelUp())
+		{
+			levelUp();
+		}
 	}
 	
+	public void gameOver()
+	{
+		JOptionPane.showMessageDialog(pane, "You are dead!","Warning",
+				JOptionPane.WARNING_MESSAGE);
+		pane.removeAll();
+		gameOverL.setSize(600,700);
+		gameOverL.setLocation(0,0);
+		gameOverL.setBorder(border);
+		gameOverL.setVisible(true);
+		pane.add(gameOverL);
+		pane.repaint();
+	}
+	
+	public void levelUp()
+	{
+		JOptionPane.showMessageDialog(pane, "Level Up!","Warning",
+				JOptionPane.WARNING_MESSAGE);
+		gameData.setLevel(gameData.getLevel() + 1);
+		gameLVText.setText(String.format("  Level : %d",gameData.getLevel()));
+		gameData.levelUP();
+		updateEnemy();
+		updatePlayer();
+	}
 }

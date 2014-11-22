@@ -1,17 +1,24 @@
 package CS5700.FinalProject;
 
 import java.util.Random;
-
 import CS5700.FinalProject.Command.Command;
+import CS5700.FinalProject.Command.WeaponCommand;
+import CS5700.FinalProject.Weapon.WeaponFactory;
 
 public class Game 
 {
 	private Invoker invoker = new Invoker();
 	private Character[] player = new Character[2];
 	private Character[] enemy = new Character[3];
+	boolean[] playerDead = new boolean[2];
+	boolean[] enemyDead = new boolean[3];
+	int[] enemyTag = new int[3];
+	boolean gameOver = false;
+	boolean levelUp = false;
+	
 	int enemyNumber;
-	private String[] enemieName ={"John","David","Ashlie",
-									"Owen","Noah","Chloe"};
+	private String[] enemyName ={"Chloe","Alice","David",
+									"Owen","Noah","John"};
 	
 	private int level;
 	
@@ -19,24 +26,35 @@ public class Game
 	{
 		this.level = 1;
 		for(int i=0; i<2; i++)
+		{
 			player[i] = new Character("Player"+(i+1),new Status(100,100,100));
+			playerDead[i] = false;
+		}
 		
 		for(int i=0; i<3; i++)
+		{
 			enemy[i] = new Character("Enemie"+(i+1),new Status(100,100,100));
-		
+			enemyDead[i] = true;
+		}
 		RandomEnemie();
 	}
 	
 	public void levelUP()
 	{
-		Status p = new Status(this.level*5,this.level*3,this.level*5);
+		Status p = new Status(100 + this.level*5,100 + this.level*3,100 + this.level*5);
+		levelUp = false;
 		
 		for(int i=0; i<2; i++)
 		{
-			player[i].getStatus().update(p);;
+			if(!playerDead[i])
+				player[i].setStatus(p);
 		}
 		
+		for(int i=0; i<3; i++)
+			enemyDead[i] = true;
+		
 		RandomEnemie();
+		invoker.clearCommand();
 	}
 	
 	public void RandomEnemie()
@@ -50,15 +68,17 @@ public class Game
 			nameRand = rand.nextInt(6);
 			for(int j=0; i<j; i++)
 			{
-				if (enemy[j].getName().equals(nameRand))
+				if (enemy[j].getName().equals(enemyName[nameRand]))
 					nameRand = rand.nextInt(6);
 			}
-			enemy[i].setName(enemieName[nameRand]);
+			enemyTag[i] = nameRand;
+			enemy[i].setName(enemyName[nameRand]);
 			
 			healthR = rand.nextInt(80) + 70;
 			magikaR = rand.nextInt(80) + 70;
 			staminaR = rand.nextInt(80) + 70;
 			enemy[i].setStatus(new Status(healthR, magikaR, staminaR));
+			enemyDead[i] = false;
 		}
 	}
 	
@@ -129,5 +149,75 @@ public class Game
 	public Invoker getInvoker()
 	{
 		return invoker;
+	}
+	
+	
+	public boolean[] getPlayerDead() {
+		return playerDead;
+	}
+
+	public boolean[] getEnemyDead() {
+		return enemyDead;
+	}
+	
+	public int getEnemyTag(int i) {
+		return enemyTag[i];
+	}
+
+	public boolean isGameOver() {
+		return gameOver;
+	}
+
+	public boolean isLevelUp() {
+		return levelUp;
+	}
+
+	public void enemyAttack()
+	{
+		Random rand = new Random();
+		int pNumber = rand.nextInt(2);
+		while(playerDead[pNumber] ==true)
+			pNumber = rand.nextInt(2);
+		int eNumber = rand.nextInt(enemyNumber);
+		
+		Command command1 = new WeaponCommand(WeaponFactory.buildWeapon("Sword"),enemy[eNumber],player[pNumber]);
+		invoker.addEnemyCommand(command1);
+		command1.execute();
+	}
+	
+	public void enemyAttackUndo()
+	{
+		Command c = invoker.getEnemyDoCommand();
+		if (c != null) {
+			c.unexecute();
+		}
+	}
+	
+	public void checkStatus()
+	{
+		for(int i=0; i<2; i++)
+		{
+			if(player[i].getStatus().getHealth() <= 0)
+				playerDead[i] = true;
+		}
+		
+		for(int i=0; i< enemyNumber; i++)
+		{
+			if(enemy[i].getStatus().getHealth() <= 0)
+				enemyDead[i] = true;
+		}
+		
+		if(playerDead[0] && playerDead[1])
+			gameOver = true;
+		
+		boolean checkLevelUp = true;
+		for(int i=0; i< enemyNumber; i++)
+		{
+			if(!enemyDead[i])
+				checkLevelUp = false;
+		}
+		
+		if(checkLevelUp)
+			levelUp = true;
 	}
 }
