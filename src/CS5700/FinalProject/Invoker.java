@@ -8,14 +8,23 @@ public class Invoker
 {
 	private ConcurrentLinkedDeque<Command> commandList = new ConcurrentLinkedDeque<Command>();
 	private ConcurrentLinkedDeque<Command> undoList = new ConcurrentLinkedDeque<Command>();
+	private ConcurrentLinkedDeque<Command> enemyAttackList = new ConcurrentLinkedDeque<Command>();
+	
+	public void clearCommand()
+	{
+		commandList.clear();
+		undoList.clear();
+		enemyAttackList.clear();
+	}
 	
 	public void addCommand(Command c) 
 	{
 		commandList.add(c);
-		
-		if (!undoList.isEmpty()) {
-			undoList.clear();
-		}
+	}
+	
+	public void addEnemyCommand(Command c) 
+	{
+		enemyAttackList.add(c);
 	}
 
 	public Command getDoCommand() 
@@ -43,6 +52,39 @@ public class Invoker
 		return c;
 	}
 	
+	public Command getEnemyDoCommand() 
+	{
+		Command c = enemyAttackList.peek();
+		
+		if (c != null)
+		{
+			enemyAttackList.pop();
+		}
+		
+		return c;
+	}
+
+	public Command getEnemyCommand() 
+	{
+		Command c = undoList.peek();
+		if (c != null)
+		{
+			undoList.pop();
+			commandList.push(c);
+		}
+		
+		return c;
+	}
+	public boolean checkCmdList()
+	{
+		return commandList.isEmpty();
+	}
+	
+	public boolean checkUnDoList()
+	{
+		return undoList.isEmpty();
+	}
+	
 	@Override
 	public String toString()
 	{
@@ -61,6 +103,14 @@ public class Invoker
 		for (int i = 0; i < ulist.length; i++)
 		{
 			sb.append("\t" + ulist[i].toString());
+			sb.append("\n");
+		}
+		
+		sb.append("Enemy command:\n");
+		Command[] elist = enemyAttackList.toArray(new Command[0]);
+		for (int i = 0; i < elist.length; i++)
+		{
+			sb.append("\t" + elist[i].toString());
 			sb.append("\n");
 		}
 		

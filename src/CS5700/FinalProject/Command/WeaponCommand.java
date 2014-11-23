@@ -5,26 +5,30 @@ import CS5700.FinalProject.Character;
 
 public class WeaponCommand implements Command
 {
+	private Character from;
 	private Weapon weapon;
+	private Character target;
 	
-	public WeaponCommand(Weapon weapon)
+	public WeaponCommand(Weapon weapon, Character from, Character target)
 	{
 		this.weapon = weapon;
+		this.from = from;
+		this.target = target;
 	}
 	
-	public void execute(Character receiver)
+	public void execute()
 	{
-		receiver.receiveDamage(weapon);
+		target.receiveDamage(weapon);
 	}
 
 	@Override
-	public void unexecute(Character receiver) {
-		receiver.recoverDamage(weapon);
+	public void unexecute() {
+		target.recoverDamage(weapon);
 	}
 	
 	@Override
 	public String toString()
 	{
-		return weapon.getName() + " command";
+		return from.getName() +" attack "+target.getName()+" with " + weapon.getName();
 	}
 }
