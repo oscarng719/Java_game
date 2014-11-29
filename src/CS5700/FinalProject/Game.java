@@ -62,18 +62,38 @@ public class Game
 		Random rand = new Random();
 		enemyNumber = rand.nextInt(3) + 1;
 		int nameRand, healthR, magikaR, staminaR;
-		
+		boolean checkName = true;
+		System.out.println("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 		for(int i=0; i<enemyNumber; i++)
 		{
 			nameRand = rand.nextInt(6);
-			for(int j=0; i<j; i++)
+			
+			if(i>0)
 			{
-				if (enemy[j].getName().equals(enemyName[nameRand]))
-					nameRand = rand.nextInt(6);
+				while(checkName)
+				{
+					checkName = false;
+					
+					for(int j=0; j<i; j++)
+					{
+						System.out.println(i+" "+j+" " + enemy[j].getName()+" "+enemyName[nameRand]);
+						if (enemy[j].getName().equals(enemyName[nameRand]))
+						{System.out.println(i+"@ "+j+" " + enemy[j].getName()+" "+enemyName[nameRand]);
+							checkName = true;
+						}
+					}
+					
+					if(checkName)
+					{
+						nameRand = rand.nextInt(6);
+					}
+				}
+				checkName = true;
 			}
+			
 			enemyTag[i] = nameRand;
 			enemy[i].setName(enemyName[nameRand]);
-			
+			System.out.println(i+":::: "+enemy[i].getName()+" "+enemyName[nameRand]);
 			healthR = rand.nextInt(80) + 70;
 			magikaR = rand.nextInt(80) + 70;
 			staminaR = rand.nextInt(80) + 70;

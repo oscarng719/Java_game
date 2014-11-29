@@ -57,8 +57,6 @@ public class GameBoard extends JFrame implements ActionListener
 		pane.setLayout(null);
 		pane.setBackground(Color.LIGHT_GRAY);
 		
-		gameData.RandomEnemie();
-		
 		mainMenu();
 		
 		setVisible(true);
@@ -285,18 +283,23 @@ public class GameBoard extends JFrame implements ActionListener
 		{
 			player[i].setText("");
 			playerStatus[i].setText("");
+			player[i].setEnabled(true);
+			
+		}
+		resetEnemy();
+		updatePlayer();
+		updateEnemy();
+	}
+	
+	public void resetEnemy()
+	{
+		for(int i=0;i<3;i++)
+		{
 			enemy[i].setText("");
 			enemy[i].setIcon(null);
 			enemy[i].setEnabled(false);
 			enemyStatus[i].setText("");
 		}
-		enemy[2].setText("");
-		enemyStatus[2].setText("");
-		enemy[2].setIcon(null);
-		enemy[2].setEnabled(false);
-		
-		updatePlayer();
-		updateEnemy();
 	}
 	
 	public void addItem()
@@ -572,6 +575,7 @@ public class GameBoard extends JFrame implements ActionListener
 			else
 			{
 				gameData.doCommand();
+				checkStatus();
 				gameData.enemyAttack();
 				updatePlayer();
 				updateEnemy();
@@ -688,6 +692,7 @@ public class GameBoard extends JFrame implements ActionListener
 		gameData.setLevel(gameData.getLevel() + 1);
 		gameLVText.setText(String.format("  Level : %d",gameData.getLevel()));
 		gameData.levelUP();
+		resetEnemy();
 		updateEnemy();
 		updatePlayer();
 	}
