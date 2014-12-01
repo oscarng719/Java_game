@@ -14,8 +14,8 @@ public class WeaponFactory
             w = new Sword();
             break;
  
-        case "Hotdog":
-           w = new Hotdog();
+        case "Arrow":
+           w = new Arrow();
             break;
         }
 		

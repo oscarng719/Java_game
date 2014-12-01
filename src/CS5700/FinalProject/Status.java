@@ -20,6 +20,13 @@ public class Status
 		health += s.getHealth();
 		magika += s.getMagika();
 		stamina += s.getStamina();
+		
+		if(health <0)
+			health =0;
+		if(magika <0)
+			magika =0;
+		if(stamina <0)
+			stamina =0;
 	}
 
 	public int getHealth() {
