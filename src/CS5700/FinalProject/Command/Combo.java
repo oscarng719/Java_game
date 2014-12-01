@@ -5,32 +5,39 @@ import java.util.List;
 
 public class Combo implements Command
 {
-	Command c1;
-	Command c2;
+	private List<Command> cmds = new ArrayList<Command>();
 	
-	public Combo(Command c1, Command c2)
+	public void add(Command c)
 	{
-		this.c1 = c1;
-		this.c2 = c2;
+	    this.cmds.add(c); 
 	}
-	
+	 
 	@Override
 	public void execute() 
 	{
-		c1.execute();
-		c2.execute();
+		for(Command c : cmds)
+        {
+            c.execute();
+        }
 	}
 
 	@Override
 	public void unexecute() 
 	{
-		c1.unexecute();
-		c2.unexecute();
+		for(Command c : cmds)
+        {
+            c.unexecute();
+        }
 	}
+	
+	public void clear()
+	{
+        this.cmds.clear();
+    }
 	
 	@Override
 	public String toString()
 	{
-		return c1.toString() +", and " + c2.toString();
+		return cmds.get(0).toString() +", and " + cmds.get(1).toString();
 	}
 }

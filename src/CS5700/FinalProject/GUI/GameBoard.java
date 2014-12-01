@@ -387,6 +387,9 @@ public class GameBoard extends JFrame implements ActionListener
 			cmd2[i].setText(" None");
 			cmd2[i].setBackground(Color.black);
 		}
+		
+		player[0].setEnabled(true);
+		player[1].setEnabled(true);
 	}
 	
 	public void actionPerformed(ActionEvent e) 
@@ -557,7 +560,9 @@ public class GameBoard extends JFrame implements ActionListener
 					Character eTmp2 = gameData.getCharacter(cmd2[2].getText());
 					Command command1 = new WeaponCommand(WeaponFactory.buildWeapon(cmd1[1].getText()),cTmp1,eTmp1);
 					Command command2 = new WeaponCommand(WeaponFactory.buildWeapon(cmd2[1].getText()),cTmp2,eTmp2);
-					Combo comboCmd = new Combo(command1, command2);
+					Combo comboCmd = new Combo();
+					comboCmd.add(command1);
+					comboCmd.add(command2);
 					gameData.addCommand(comboCmd);
 					clearCMD();
 					comboClicked = false;
@@ -604,13 +609,22 @@ public class GameBoard extends JFrame implements ActionListener
 			{
 				if(e.getSource() == player[i])
 				{
-					if(comboClicked == true && !(cmd1[0].getText().equals("")))
+					if(comboClicked == true )
 					{
 						
-						cmd2[0].setText(gameData.getPlayer(i).getName());
-						cmd2[0].setBackground(Color.YELLOW);
-						break;
-						
+						if(!(cmd1[0].getText().equals("")))
+						{
+							cmd2[0].setText(gameData.getPlayer(i).getName());
+							cmd2[0].setBackground(Color.YELLOW);
+							player[i].setEnabled(false);
+							break;
+						}
+						else
+						{
+							cmd1[0].setText(gameData.getPlayer(i).getName());
+							cmd1[0].setBackground(Color.YELLOW);
+							player[i].setEnabled(false);
+						}
 					}
 					else
 					{
